@@ -115,7 +115,7 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
       {/* Main content */}
       <main className="main-content">
         {data.loading && <p className="loading-msg">読み込み中…</p>}
-        {data.error && <p className="error-msg">{data.error}</p>}
+        {data.bgError && <div className="bg-error-toast">{data.bgError}</div>}
 
         {!data.loading && viewMode === 'all' && (
           <AllItemsView items={data.items} categories={data.categories} />
@@ -135,10 +135,12 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
                 {searchResults.map(item => (
                   <li key={item.id} className="item-card">
                     <div className="item-card-main">
-                      <span className="item-name">{item.name}</span>
-                      <div className="item-badges">
-                        {item.categoryName && <span className="badge cat">{item.categoryName}</span>}
-                        <span className="badge owner">{item.ownerName}</span>
+                      <div className="item-card-top">
+                        <span className="item-name">{item.name}</span>
+                        <div className="item-badges">
+                          {item.categoryName && <span className="badge cat">{item.categoryName}</span>}
+                          <span className="badge owner">{item.ownerName}</span>
+                        </div>
                       </div>
                     </div>
                   </li>
@@ -165,9 +167,10 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
                   items={memberItems}
                   onTransfer={item => setTransferItem(item)}
                   onEdit={item => setEditingItem(item)}
-                  onDelete={id => { if (confirm('削除しますか？')) wrap(() => data.removeItem(id)); }}
-                  onMove={(id, dir) => wrap(() => data.moveItem(id, selectedMemberId!, dir))}
+                  onDelete={id => { if (confirm('削除しますか？')) data.removeItem(id); }}
+                  onMove={(id, dir) => data.moveItem(id, selectedMemberId!, dir)}
                   busy={busy}
+                  pendingItems={data.pendingItems}
                   editingItem={editingItem}
                   onUpdateItem={handleUpdateItem}
                   onCancelEdit={() => setEditingItem(null)}
@@ -266,6 +269,7 @@ interface FilterProps {
   onDelete: (id: string) => void;
   onMove: (id: string, dir: 'up' | 'down') => void;
   busy: boolean;
+  pendingItems: Set<string>;
   editingItem: Item | null;
   onUpdateItem: (e: React.FormEvent) => Promise<void>;
   onCancelEdit: () => void;
@@ -275,7 +279,7 @@ interface FilterProps {
 
 function MemberItemsFilter({
   categories, items, onTransfer, onEdit, onDelete, onMove, busy,
-  editingItem, onUpdateItem, onCancelEdit, categories_sorted, onEditingItemChange,
+  pendingItems, editingItem, onUpdateItem, onCancelEdit, categories_sorted, onEditingItemChange,
 }: FilterProps) {
   const [filterName, setFilterName] = useState('');
   const [filterCat, setFilterCat] = useState('');
@@ -335,23 +339,26 @@ function MemberItemsFilter({
                 </form>
               ) : (
                 <div className="item-card-main">
-                  <div className="item-card-left">
+                  <div className="item-card-top">
                     <span className="item-name">{item.name}</span>
-                    {item.categoryName && <span className="badge cat">{item.categoryName}</span>}
-                    {item.lastTransferDate && <span className="badge date">{item.lastTransferDate}</span>}
+                    <div className="item-badges">
+                      {item.categoryName && <span className="badge cat">{item.categoryName}</span>}
+                      {item.lastTransferDate && <span className="badge date">{item.lastTransferDate}</span>}
+                      {pendingItems.has(item.id) && <span className="badge syncing">同期中…</span>}
+                    </div>
                   </div>
                   <div className="item-card-actions">
                     <button
                       className="transfer-btn"
                       onClick={() => onTransfer(item)}
-                      disabled={busy}
+                      disabled={pendingItems.has(item.id)}
                     >
                       移転
                     </button>
-                    <button className="item-arrow" disabled={busy || i === 0} onClick={() => onMove(item.id, 'up')}>↑</button>
-                    <button className="item-arrow" disabled={busy || i === filtered.length - 1} onClick={() => onMove(item.id, 'down')}>↓</button>
+                    <button className="item-arrow" disabled={i === 0} onClick={() => onMove(item.id, 'up')}>↑</button>
+                    <button className="item-arrow" disabled={i === filtered.length - 1} onClick={() => onMove(item.id, 'down')}>↓</button>
                     <button className="item-edit-btn" onClick={() => onEdit(item)}>編集</button>
-                    <button className="item-del-btn" onClick={() => onDelete(item.id)} disabled={busy}>削除</button>
+                    <button className="item-del-btn" onClick={() => onDelete(item.id)}>削除</button>
                   </div>
                 </div>
               )}
