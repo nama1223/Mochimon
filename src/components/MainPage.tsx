@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import type { OrgInfo, Item, ViewMode } from '../types';
 import { useData } from '../hooks/useData';
 import SideMenu from './SideMenu';
@@ -29,6 +29,8 @@ export default function MainPage({ org, onLogout }: Props) {
   const [newItemCat, setNewItemCat] = useState('');
   const [busy, setBusy] = useState(false);
   const [pageRestored, setPageRestored] = useState(false);
+  const [inviteCopied, setInviteCopied] = useState(false);
+  const inviteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => { data.load(); }, [data.load]);
 
@@ -75,6 +77,26 @@ export default function MainPage({ org, onLogout }: Props) {
   function handleSearchChange(q: string) {
     setSearchQuery(q);
     setViewMode(q.trim() ? 'search' : 'member');
+  }
+
+  function handleInvite() {
+    const base = window.location.origin + window.location.pathname;
+    const url = `${base}?invite=${encodeURIComponent(org.id)}&n=${encodeURIComponent(org.name)}`;
+    const copy = (text: string) => {
+      if (navigator.clipboard) return navigator.clipboard.writeText(text);
+      const el = document.createElement('textarea');
+      el.value = text;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      return Promise.resolve();
+    };
+    copy(url).finally(() => {
+      setInviteCopied(true);
+      if (inviteTimer.current) clearTimeout(inviteTimer.current);
+      inviteTimer.current = setTimeout(() => setInviteCopied(false), 3000);
+    });
   }
 
   function handleSelectMember(id: string) {
@@ -125,12 +147,14 @@ export default function MainPage({ org, onLogout }: Props) {
           {viewMode === 'history' && <span className="view-label">移転履歴</span>}
           {viewMode === 'search' && <span className="view-label">検索: {searchQuery}</span>}
         </div>
+        <button className="invite-btn" onClick={handleInvite}>招待</button>
         <button className="register-btn" onClick={() => setShowRegister(true)}>登録</button>
       </header>
 
       <main className="main-content">
         {data.loading && <p className="loading-msg">読み込み中…</p>}
         {data.bgError && <div className="bg-error-toast">{data.bgError}</div>}
+        {inviteCopied && <div className="bg-success-toast">招待URLをコピーしました</div>}
 
         {!data.loading && viewMode === 'all' && (
           <AllItemsView items={data.items} categories={data.categories} onSelectMember={handleSelectMember} />
