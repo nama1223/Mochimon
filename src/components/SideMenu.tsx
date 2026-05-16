@@ -12,13 +12,14 @@ interface Props {
   onSelectMember: (id: string) => void;
   onViewAll: () => void;
   onViewHistory: () => void;
+  onLogout: () => void;
   onClose: () => void;
 }
 
 export default function SideMenu({
   members, selectedMemberId, viewMode,
   searchQuery, onSearchChange,
-  onSelectMember, onViewAll, onViewHistory, onClose,
+  onSelectMember, onViewAll, onViewHistory, onLogout, onClose,
 }: Props) {
   const sorted = [...members].sort((a, b) => a.order - b.order);
 
@@ -27,6 +28,9 @@ export default function SideMenu({
       <div className="menu-backdrop" onClick={onClose} />
       <nav className="side-menu">
         <div className="menu-header">
+          <button className="menu-top-btn" onClick={() => { onLogout(); onClose(); }}>
+            ← TOP
+          </button>
           <span className="menu-title">メニュー</span>
           <button className="menu-close" onClick={onClose}>✕</button>
         </div>
@@ -37,7 +41,6 @@ export default function SideMenu({
             placeholder="アイテムを検索…"
             value={searchQuery}
             onChange={e => onSearchChange(e.target.value)}
-            onFocus={() => { if (!searchQuery) onSearchChange(''); }}
           />
         </div>
 

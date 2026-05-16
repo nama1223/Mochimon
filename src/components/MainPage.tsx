@@ -13,7 +13,9 @@ interface Props {
   onLogout: () => void;
 }
 
-export default function MainPage({ org, onLogout: _onLogout }: Props) {
+function pageKey(orgId: string) { return `mochimon_page_${orgId}`; }
+
+export default function MainPage({ org, onLogout }: Props) {
   const data = useData(org.id);
   const [menuOpen, setMenuOpen] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('member');
@@ -26,15 +28,35 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
   const [newItemName, setNewItemName] = useState('');
   const [newItemCat, setNewItemCat] = useState('');
   const [busy, setBusy] = useState(false);
+  const [pageRestored, setPageRestored] = useState(false);
 
   useEffect(() => { data.load(); }, [data.load]);
 
-  // 最初のメンバーを自動選択
+  // データ読み込み後にLocalStorageから最後のページ状態を復元
   useEffect(() => {
-    if (data.members.length > 0 && selectedMemberId === null) {
+    if (pageRestored || data.loading || data.members.length === 0) return;
+    try {
+      const saved = localStorage.getItem(pageKey(org.id));
+      if (saved) {
+        const { memberId, view } = JSON.parse(saved) as { memberId: string | null; view: ViewMode };
+        const memberExists = memberId && data.members.find(m => m.id === memberId);
+        setSelectedMemberId(memberExists ? memberId : data.members.sort((a, b) => a.order - b.order)[0].id);
+        if (view && view !== 'search') setViewMode(view);
+      } else {
+        setSelectedMemberId(data.members.sort((a, b) => a.order - b.order)[0].id);
+      }
+    } catch {
       setSelectedMemberId(data.members.sort((a, b) => a.order - b.order)[0].id);
     }
-  }, [data.members, selectedMemberId]);
+    setPageRestored(true);
+  }, [data.loading, data.members, org.id, pageRestored]);
+
+  // ページ状態をLocalStorageに保存
+  useEffect(() => {
+    if (!pageRestored) return;
+    const view = viewMode === 'search' ? 'member' : viewMode;
+    localStorage.setItem(pageKey(org.id), JSON.stringify({ memberId: selectedMemberId, view }));
+  }, [selectedMemberId, viewMode, pageRestored, org.id]);
 
   const selectedMember = data.members.find(m => m.id === selectedMemberId) ?? null;
 
@@ -47,14 +69,17 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
-    const q = searchQuery.trim();
-    return data.items.filter(i => i.name.includes(q));
+    return data.items.filter(i => i.name.includes(searchQuery.trim()));
   }, [data.items, searchQuery]);
 
   function handleSearchChange(q: string) {
     setSearchQuery(q);
-    if (q.trim()) setViewMode('search');
-    else setViewMode('member');
+    setViewMode(q.trim() ? 'search' : 'member');
+  }
+
+  function handleSelectMember(id: string) {
+    setSelectedMemberId(id);
+    setViewMode('member');
   }
 
   async function wrap(fn: () => Promise<void>) {
@@ -67,13 +92,7 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
     if (!newItemName.trim() || !selectedMemberId || !selectedMember) return;
     const cat = data.categories.find(c => c.id === newItemCat);
     await wrap(async () => {
-      await data.addItem(
-        selectedMemberId,
-        selectedMember.name,
-        newItemName.trim(),
-        newItemCat,
-        cat?.name ?? '',
-      );
+      await data.addItem(selectedMemberId, selectedMember.name, newItemName.trim(), newItemCat, cat?.name ?? '');
       setNewItemName('');
       setAddingItem(false);
     });
@@ -97,14 +116,11 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
 
   return (
     <div className="main-page">
-      {/* Header */}
       <header className="main-header">
         <button className="menu-btn" onClick={() => setMenuOpen(true)}>≡</button>
         <div className="header-center">
           <span className="org-name">{org.name}</span>
-          {viewMode === 'member' && selectedMember && (
-            <span className="selected-member">{selectedMember.name}</span>
-          )}
+          {viewMode === 'member' && selectedMember && <span className="selected-member">{selectedMember.name}</span>}
           {viewMode === 'all' && <span className="view-label">全アイテム</span>}
           {viewMode === 'history' && <span className="view-label">移転履歴</span>}
           {viewMode === 'search' && <span className="view-label">検索: {searchQuery}</span>}
@@ -112,7 +128,6 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
         <button className="register-btn" onClick={() => setShowRegister(true)}>登録</button>
       </header>
 
-      {/* Main content */}
       <main className="main-content">
         {data.loading && <p className="loading-msg">読み込み中…</p>}
         {data.bgError && <div className="bg-error-toast">{data.bgError}</div>}
@@ -139,7 +154,13 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
                         <span className="item-name">{item.name}</span>
                         <div className="item-badges">
                           {item.categoryName && <span className="badge cat">{item.categoryName}</span>}
-                          <span className="badge owner">{item.ownerName}</span>
+                          {/* 持ち主名をクリックするとそのメンバーのリストへ */}
+                          <button
+                            className="badge owner owner-link"
+                            onClick={() => handleSelectMember(item.ownerId)}
+                          >
+                            {item.ownerName}
+                          </button>
                         </div>
                       </div>
                     </div>
@@ -161,7 +182,6 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
               </div>
             ) : (
               <>
-                {/* Filter bar */}
                 <MemberItemsFilter
                   categories={sortedCats}
                   items={memberItems}
@@ -178,7 +198,6 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
                   onEditingItemChange={setEditingItem}
                 />
 
-                {/* Add item */}
                 <div className="add-item-area">
                   {addingItem ? (
                     <form onSubmit={handleAddItem} className="add-item-form">
@@ -214,7 +233,6 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
         )}
       </main>
 
-      {/* Side menu */}
       {menuOpen && (
         <SideMenu
           members={data.members}
@@ -222,14 +240,14 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
           viewMode={viewMode}
           searchQuery={searchQuery}
           onSearchChange={handleSearchChange}
-          onSelectMember={id => { setSelectedMemberId(id); setViewMode('member'); }}
+          onSelectMember={handleSelectMember}
           onViewAll={() => setViewMode('all')}
           onViewHistory={() => setViewMode('history')}
+          onLogout={onLogout}
           onClose={() => setMenuOpen(false)}
         />
       )}
 
-      {/* Register modal */}
       {showRegister && (
         <RegisterModal
           members={data.members}
@@ -246,7 +264,6 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
         />
       )}
 
-      {/* Transfer modal */}
       {transferItem && (
         <TransferModal
           item={transferItem}
@@ -259,7 +276,7 @@ export default function MainPage({ org, onLogout: _onLogout }: Props) {
   );
 }
 
-// ---- MemberItemsFilter: フィルタ付きアイテムリスト ----
+// ---- MemberItemsFilter ----
 
 interface FilterProps {
   categories: ReturnType<typeof useData>['categories'] extends (infer T)[] ? T[] : never;
@@ -339,13 +356,12 @@ function MemberItemsFilter({
                 </form>
               ) : (
                 <div className="item-card-main">
+                  {/* アイテム名＋カテゴリを同じ行に */}
                   <div className="item-card-top">
                     <span className="item-name">{item.name}</span>
-                    <div className="item-badges">
-                      {item.categoryName && <span className="badge cat">{item.categoryName}</span>}
-                      {item.lastTransferDate && <span className="badge date">{item.lastTransferDate}</span>}
-                      {pendingItems.has(item.id) && <span className="badge syncing">同期中…</span>}
-                    </div>
+                    {item.categoryName && <span className="badge cat">{item.categoryName}</span>}
+                    {item.lastTransferDate && <span className="badge date">{item.lastTransferDate}</span>}
+                    {pendingItems.has(item.id) && <span className="badge syncing">同期中…</span>}
                   </div>
                   <div className="item-card-actions">
                     <button

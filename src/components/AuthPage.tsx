@@ -19,13 +19,7 @@ export default function AuthPage({ storedOrgs, onAuth, onAdmin }: Props) {
     e.preventDefault();
     const pw = password.trim();
     if (!pw) return;
-
-    if (pw === ADMIN_TRIGGER) {
-      setPassword('');
-      onAdmin();
-      return;
-    }
-
+    if (pw === ADMIN_TRIGGER) { setPassword(''); onAdmin(); return; }
     setLoading(true);
     setError('');
     try {
@@ -41,10 +35,28 @@ export default function AuthPage({ storedOrgs, onAuth, onAdmin }: Props) {
   return (
     <div className="auth-page">
       <div className="auth-card">
+        {/* キャラクター画像 */}
         <img src="Mochimon192.png" alt="Mochimon" className="auth-logo" />
-        <h1 className="auth-title">Mochimon</h1>
         <p className="auth-subtitle">もちものリスト管理</p>
 
+        {/* 以前ログインした団体（フォームより上） */}
+        {storedOrgs.length > 0 && (
+          <div className="auth-stored">
+            <p className="auth-stored-label">以前ログインした団体</p>
+            {storedOrgs.map(org => (
+              <button key={org.id} className="auth-stored-btn" onClick={() => onAuth(org)}>
+                {org.name}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* 区切り線 */}
+        <div className="auth-divider">
+          <span>{storedOrgs.length > 0 ? 'または' : 'パスワードでログイン'}</span>
+        </div>
+
+        {/* パスワードフォーム */}
         <form onSubmit={handleSubmit} className="auth-form">
           <input
             type="password"
@@ -52,28 +64,12 @@ export default function AuthPage({ storedOrgs, onAuth, onAdmin }: Props) {
             value={password}
             onChange={e => setPassword(e.target.value)}
             className="auth-input"
-            autoFocus
           />
           {error && <p className="auth-error">{error}</p>}
           <button type="submit" className="auth-btn" disabled={loading || !password.trim()}>
             {loading ? '確認中…' : 'ログイン'}
           </button>
         </form>
-
-        {storedOrgs.length > 0 && (
-          <div className="auth-stored">
-            <p className="auth-stored-label">以前ログインした団体</p>
-            {storedOrgs.map(org => (
-              <button
-                key={org.id}
-                className="auth-stored-btn"
-                onClick={() => onAuth(org)}
-              >
-                {org.name}
-              </button>
-            ))}
-          </div>
-        )}
       </div>
     </div>
   );

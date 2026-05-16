@@ -19,6 +19,8 @@ export default function TransferHistoryView({ transfers, categories }: Props) {
       const cat = categories.find(c => c.id === filterCat);
       if (cat) list = list.filter(t => t.itemName.includes(cat.name));
     }
+    // 常に最新順（上が新しい）
+    list.sort((a, b) => String(b.transferDate).localeCompare(String(a.transferDate)));
     return list;
   }, [transfers, filterName, filterCat, categories]);
 

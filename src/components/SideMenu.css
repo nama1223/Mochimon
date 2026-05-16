@@ -28,15 +28,30 @@
 .menu-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 20px 16px 12px;
+  gap: 8px;
+  padding: 16px 12px 12px;
   border-bottom: 1px solid #e8edf2;
 }
 
+.menu-top-btn {
+  background: none;
+  border: 1.5px solid #c8d6e5;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a90e2;
+  cursor: pointer;
+  padding: 5px 10px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .menu-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 700;
   color: #2c3e50;
+  flex: 1;
+  text-align: center;
 }
 
 .menu-close {
@@ -46,6 +61,7 @@
   color: #7f8c8d;
   cursor: pointer;
   padding: 4px 6px;
+  flex-shrink: 0;
 }
 
 .menu-search-row {

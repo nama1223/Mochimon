@@ -195,32 +195,32 @@
   border: 1px solid #e8edf2;
 }
 
-/* 縦積みレイアウト: 名前→バッジ→ボタン */
+/* カード: 名前＋バッジ行 → ボタン行 の2段構成 */
 .item-card-main {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
+/* 名前とカテゴリバッジを同じ行に（折り返しあり） */
 .item-card-top {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
 }
 
 .item-name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 600;
   color: #2c3e50;
-  line-height: 1.3;
-  word-break: break-all;
+  line-height: 1.4;
+  /* 長い名前は単語境界で折り返す */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
-.item-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-}
+/* item-badgesはitem-card-topの子ではなくなったので削除 */
 
 .badge {
   font-size: 11px;
@@ -233,6 +233,16 @@
 .badge.owner  { background: #f0faf0; color: #27ae60; }
 .badge.date   { background: #fdf5e8; color: #e67e22; }
 .badge.syncing { background: #f0f0f0; color: #999; animation: pulse 1s infinite; }
+
+/* 検索結果の持ち主バッジ：クリッカブル */
+button.badge.owner-link {
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+button.badge.owner-link:hover { background: #d5f5dc; }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
