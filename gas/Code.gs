@@ -35,9 +35,20 @@ function sheetToObjects(sheet) {
   if (lr <= 1) return [];
   var data = sheet.getRange(1, 1, lr, sheet.getLastColumn()).getValues();
   var headers = data[0];
+  var tz = Session.getScriptTimeZone();
   return data.slice(1).map(function(row) {
     var obj = {};
-    headers.forEach(function(h, i) { obj[h] = row[i]; });
+    headers.forEach(function(h, i) {
+      var val = row[i];
+      // スプレッドシートの日付セルは Date オブジェクトになるので文字列に変換
+      if (val instanceof Date) {
+        obj[h] = val.getFullYear() > 1899
+          ? Utilities.formatDate(val, tz, 'yyyy-MM-dd')
+          : '';
+      } else {
+        obj[h] = val;
+      }
+    });
     return obj;
   });
 }
@@ -146,7 +157,7 @@ function handleGetData(body) {
 
   var transfers = sheetToObjects(getOrCreateSheet(ss, 'transfers'))
     .filter(function(t) { return t.orgId === orgId; })
-    .sort(function(a, b) { return b.transferDate.localeCompare(a.transferDate); });
+    .sort(function(a, b) { return String(b.transferDate).localeCompare(String(a.transferDate)); });
 
   return { members: members, categories: categories, items: items, transfers: transfers };
 }
