@@ -133,11 +133,11 @@ export default function MainPage({ org, onLogout }: Props) {
         {data.bgError && <div className="bg-error-toast">{data.bgError}</div>}
 
         {!data.loading && viewMode === 'all' && (
-          <AllItemsView items={data.items} categories={data.categories} />
+          <AllItemsView items={data.items} categories={data.categories} onSelectMember={handleSelectMember} />
         )}
 
         {!data.loading && viewMode === 'history' && (
-          <TransferHistoryView transfers={data.transfers} categories={data.categories} />
+          <TransferHistoryView transfers={data.transfers} categories={data.categories} onSelectMember={handleSelectMember} />
         )}
 
         {!data.loading && viewMode === 'search' && (

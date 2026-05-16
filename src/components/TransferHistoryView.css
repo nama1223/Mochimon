@@ -81,11 +81,23 @@
   font-weight: 700;
 }
 
-.history-to {
+/* クリッカブルなメンバー名ボタン */
+.history-member-btn {
+  background: none;
+  border: none;
+  padding: 0;
   font-size: 14px;
+  font-family: inherit;
+  color: #7f8c8d;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.history-member-btn.to {
   font-weight: 600;
   color: #27ae60;
 }
+.history-member-btn:hover { opacity: 0.75; }
 
 .history-item-date {
   font-size: 12px;

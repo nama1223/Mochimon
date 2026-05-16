@@ -7,9 +7,10 @@ type SortKey = 'name' | 'category' | 'owner' | 'date';
 interface Props {
   items: Item[];
   categories: Category[];
+  onSelectMember: (id: string) => void;
 }
 
-export default function AllItemsView({ items, categories }: Props) {
+export default function AllItemsView({ items, categories, onSelectMember }: Props) {
   const [filterName, setFilterName] = useState('');
   const [filterCat, setFilterCat] = useState('');
   const [sort, setSort] = useState<SortKey>('name');
@@ -22,10 +23,10 @@ export default function AllItemsView({ items, categories }: Props) {
     list.sort((a, b) => {
       let cmp = 0;
       switch (sort) {
-        case 'name': cmp = a.name.localeCompare(b.name, 'ja'); break;
+        case 'name':     cmp = a.name.localeCompare(b.name, 'ja'); break;
         case 'category': cmp = a.categoryName.localeCompare(b.categoryName, 'ja'); break;
-        case 'owner': cmp = a.ownerName.localeCompare(b.ownerName, 'ja'); break;
-        case 'date': cmp = (a.lastTransferDate ?? '').localeCompare(b.lastTransferDate ?? ''); break;
+        case 'owner':    cmp = a.ownerName.localeCompare(b.ownerName, 'ja'); break;
+        case 'date':     cmp = (a.lastTransferDate ?? '').localeCompare(b.lastTransferDate ?? ''); break;
       }
       return sortAsc ? cmp : -cmp;
     });
@@ -85,7 +86,12 @@ export default function AllItemsView({ items, categories }: Props) {
               <div className="all-item-name">{item.name}</div>
               <div className="all-item-meta">
                 <span className="all-badge cat">{item.categoryName || '未分類'}</span>
-                <span className="all-badge owner">{item.ownerName}</span>
+                <button
+                  className="all-badge owner owner-link"
+                  onClick={() => onSelectMember(item.ownerId)}
+                >
+                  {item.ownerName}
+                </button>
                 {item.lastTransferDate && (
                   <span className="all-badge date">{item.lastTransferDate}</span>
                 )}

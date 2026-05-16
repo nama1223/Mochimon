@@ -5,13 +5,13 @@ import './TransferHistoryView.css';
 interface Props {
   transfers: TransferRecord[];
   categories: Category[];
+  onSelectMember: (id: string) => void;
 }
 
-export default function TransferHistoryView({ transfers, categories }: Props) {
+export default function TransferHistoryView({ transfers, categories, onSelectMember }: Props) {
   const [filterName, setFilterName] = useState('');
   const [filterCat, setFilterCat] = useState('');
 
-  // transfers don't store categoryId — filter by category name substring
   const filtered = useMemo(() => {
     let list = [...transfers];
     if (filterName) list = list.filter(t => t.itemName.includes(filterName));
@@ -19,7 +19,6 @@ export default function TransferHistoryView({ transfers, categories }: Props) {
       const cat = categories.find(c => c.id === filterCat);
       if (cat) list = list.filter(t => t.itemName.includes(cat.name));
     }
-    // 常に最新順（上が新しい）
     list.sort((a, b) => String(b.transferDate).localeCompare(String(a.transferDate)));
     return list;
   }, [transfers, filterName, filterCat, categories]);
@@ -53,9 +52,17 @@ export default function TransferHistoryView({ transfers, categories }: Props) {
             <li key={t.id} className="history-item">
               <div className="history-item-name">{t.itemName}</div>
               <div className="history-item-route">
-                <span className="history-from">{t.fromMemberName ?? '（未登録）'}</span>
+                {t.fromMemberId ? (
+                  <button className="history-member-btn" onClick={() => onSelectMember(t.fromMemberId!)}>
+                    {t.fromMemberName}
+                  </button>
+                ) : (
+                  <span className="history-from">（未登録）</span>
+                )}
                 <span className="history-arrow">→</span>
-                <span className="history-to">{t.toMemberName}</span>
+                <button className="history-member-btn to" onClick={() => onSelectMember(t.toMemberId)}>
+                  {t.toMemberName}
+                </button>
               </div>
               <div className="history-item-date">{t.transferDate}</div>
             </li>
