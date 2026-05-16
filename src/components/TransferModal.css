@@ -1,0 +1,126 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.modal-sheet {
+  background: #fff;
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 480px;
+  padding: 12px 20px 32px;
+  max-height: 85dvh;
+  overflow-y: auto;
+}
+
+.modal-handle {
+  width: 40px;
+  height: 4px;
+  background: #d1d8e0;
+  border-radius: 2px;
+  margin: 0 auto 16px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #2c3e50;
+  margin: 0 0 8px;
+}
+
+.modal-item-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: #4a90e2;
+  margin-bottom: 6px;
+}
+
+.modal-from {
+  font-size: 14px;
+  color: #7f8c8d;
+  margin: 0 0 16px;
+}
+
+.modal-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #7f8c8d;
+  margin: 0 0 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.modal-member-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.modal-member-btn {
+  padding: 14px 16px;
+  border: 2px solid #e1e8ed;
+  border-radius: 12px;
+  background: #f8fafc;
+  font-size: 16px;
+  color: #2c3e50;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.modal-member-btn.selected {
+  border-color: #4a90e2;
+  background: #edf4ff;
+  color: #4a90e2;
+  font-weight: 600;
+}
+
+.modal-empty {
+  color: #7f8c8d;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+}
+
+.modal-error {
+  color: #e24a4a;
+  font-size: 13px;
+  margin: 0 0 12px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.modal-cancel {
+  flex: 1;
+  padding: 14px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  color: #555;
+  cursor: pointer;
+}
+
+.modal-confirm {
+  flex: 2;
+  padding: 14px;
+  background: #4a90e2;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  cursor: pointer;
+}
+.modal-confirm:disabled {
+  opacity: 0.5;
+}

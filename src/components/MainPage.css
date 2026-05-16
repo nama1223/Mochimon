@@ -1,0 +1,368 @@
+.main-page {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background: #f5f7fa;
+}
+
+/* Header */
+.main-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 16px;
+  height: 56px;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  flex-shrink: 0;
+}
+
+.menu-btn {
+  font-size: 22px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #2c3e50;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.org-name {
+  font-size: 11px;
+  color: #7f8c8d;
+  line-height: 1;
+}
+
+.selected-member {
+  font-size: 17px;
+  font-weight: 700;
+  color: #2c3e50;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.view-label {
+  font-size: 17px;
+  font-weight: 700;
+  color: #2c3e50;
+}
+
+.register-btn {
+  padding: 8px 16px;
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* Content */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 12px;
+}
+
+.loading-msg, .error-msg {
+  text-align: center;
+  padding: 40px 16px;
+  color: #7f8c8d;
+}
+.error-msg { color: #e24a4a; }
+
+/* Search results */
+.search-results {
+  padding: 0 16px 32px;
+}
+.search-count {
+  font-size: 12px;
+  color: #7f8c8d;
+  margin: 0 0 10px;
+}
+.search-empty {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 40px 0;
+}
+
+/* Member view */
+.member-view {
+  padding-bottom: 32px;
+}
+
+.no-member {
+  text-align: center;
+  padding: 60px 20px;
+  color: #7f8c8d;
+}
+
+.open-register-btn {
+  margin-top: 12px;
+  padding: 12px 24px;
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+/* Member filter bar */
+.member-filters {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px 12px;
+}
+
+.member-filter-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1.5px solid #e1e8ed;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+}
+.member-filter-input:focus { border-color: #4a90e2; }
+
+.member-filter-select {
+  padding: 10px 8px;
+  border: 1.5px solid #e1e8ed;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fff;
+  outline: none;
+}
+
+.member-empty {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 40px 0;
+}
+
+/* Item list */
+.item-list {
+  list-style: none;
+  margin: 0;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  border: 1px solid #e8edf2;
+}
+
+.item-card-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.item-card-left {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.item-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #2c3e50;
+  width: 100%;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+.badge.cat { background: #edf4ff; color: #4a90e2; }
+.badge.owner { background: #f0faf0; color: #27ae60; }
+.badge.date { background: #fdf5e8; color: #e67e22; }
+
+.item-card-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.transfer-btn {
+  padding: 7px 14px;
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.transfer-btn:disabled { opacity: 0.5; }
+
+.item-arrow {
+  width: 30px;
+  height: 30px;
+  border: 1.5px solid #c8d6e5;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  color: #5f6b7a;
+  cursor: pointer;
+}
+.item-arrow:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.item-edit-btn {
+  padding: 6px 10px;
+  border: 1.5px solid #c5dbf7;
+  border-radius: 8px;
+  background: #f0f6ff;
+  color: #4a90e2;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.item-del-btn {
+  padding: 6px 10px;
+  border: 1.5px solid #f5c6c6;
+  border-radius: 8px;
+  background: #fff0f0;
+  color: #e24a4a;
+  font-size: 12px;
+  cursor: pointer;
+}
+.item-del-btn:disabled { opacity: 0.5; }
+
+/* Edit form */
+.item-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.item-edit-input, .item-edit-select {
+  padding: 10px 12px;
+  border: 1.5px solid #e1e8ed;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+}
+.item-edit-input:focus, .item-edit-select:focus { border-color: #4a90e2; }
+
+.item-edit-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.item-save-btn {
+  flex: 1;
+  padding: 10px;
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.item-cancel-btn {
+  padding: 10px 14px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Add item */
+.add-item-area {
+  padding: 16px 16px 0;
+}
+
+.add-item-btn {
+  width: 100%;
+  padding: 14px;
+  border: 2px dashed #c5dbf7;
+  border-radius: 12px;
+  background: #f7fbff;
+  color: #4a90e2;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.add-item-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.add-item-input {
+  padding: 12px 14px;
+  border: 1.5px solid #e1e8ed;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+}
+.add-item-input:focus { border-color: #4a90e2; }
+
+.add-item-select {
+  padding: 12px 14px;
+  border: 1.5px solid #e1e8ed;
+  border-radius: 10px;
+  font-size: 15px;
+  background: #fff;
+  outline: none;
+}
+
+.add-item-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.add-item-save {
+  flex: 2;
+  padding: 12px;
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.add-item-save:disabled { opacity: 0.5; }
+
+.add-item-cancel {
+  flex: 1;
+  padding: 12px;
+  background: #f0f0f0;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  cursor: pointer;
+}

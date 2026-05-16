@@ -1,0 +1,93 @@
+.history {
+  padding: 0 16px 32px;
+}
+
+.history-filters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.history-filter-input {
+  flex: 1;
+  padding: 10px 12px;
+  border: 1.5px solid #e1e8ed;
+  border-radius: 10px;
+  font-size: 14px;
+  outline: none;
+}
+.history-filter-input:focus { border-color: #4a90e2; }
+
+.history-filter-select {
+  padding: 10px 8px;
+  border: 1.5px solid #e1e8ed;
+  border-radius: 10px;
+  font-size: 14px;
+  background: #fff;
+  outline: none;
+}
+
+.history-count {
+  font-size: 12px;
+  color: #7f8c8d;
+  margin: 0 0 10px;
+}
+
+.history-empty {
+  text-align: center;
+  color: #7f8c8d;
+  padding: 40px 0;
+}
+
+.history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.history-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border: 1px solid #e8edf2;
+}
+
+.history-item-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 6px;
+}
+
+.history-item-route {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.history-from {
+  font-size: 14px;
+  color: #7f8c8d;
+}
+
+.history-arrow {
+  font-size: 14px;
+  color: #4a90e2;
+  font-weight: 700;
+}
+
+.history-to {
+  font-size: 14px;
+  font-weight: 600;
+  color: #27ae60;
+}
+
+.history-item-date {
+  font-size: 12px;
+  color: #b0bec5;
+}
