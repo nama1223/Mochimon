@@ -37,7 +37,7 @@ export default function AuthPage({ storedOrgs, onAuth, onAdmin }: Props) {
       <div className="auth-card">
         {/* キャラクター画像 */}
         <img src="Mochimon192.png" alt="Mochimon" className="auth-logo" />
-        <p className="auth-subtitle">もちものリスト管理</p>
+        <p className="auth-subtitle">もちものリスト管理「Mochimon」</p>
 
         {/* 以前ログインした団体（フォームより上） */}
         {storedOrgs.length > 0 && (
