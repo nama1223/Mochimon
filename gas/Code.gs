@@ -78,7 +78,8 @@ function doPost(e) {
       case 'items/upsert':        result = handleItemUpsert(body); break;
       case 'items/delete':        result = handleItemDelete(body); break;
       case 'items/reorder':       result = handleItemReorder(body); break;
-      case 'items/transfer':      result = handleItemTransfer(body); break;
+      case 'items/transfer':             result = handleItemTransfer(body); break;
+      case 'transfers/deleteInvalid':    result = handleDeleteInvalidTransfers(body); break;
       default: throw new Error('Unknown action: ' + action);
     }
     output.setContent(JSON.stringify({ ok: true, data: result }));
@@ -328,18 +329,24 @@ function handleItemTransfer(body) {
   var fromMemberId = null;
   var fromMemberName = null;
   var itemName = '';
+  var found = false;
   var transferDate = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
 
   for (var i = 1; i < data.length; i++) {
     if (data[i][0] === body.itemId) {
+      found = true;
       fromMemberId = data[i][5] || null;
       fromMemberName = data[i][6] || null;
       itemName = data[i][2];
-      // ownerId(col6), ownerName(col7), lastTransferDate(col9)
       itemSheet.getRange(i + 1, 6, 1, 2).setValues([[body.toMemberId, body.toMemberName]]);
       itemSheet.getRange(i + 1, 9).setValue(transferDate);
       break;
     }
+  }
+
+  // アイテムが見つからない場合はエラー（まだGASに保存されていない可能性）
+  if (!found) {
+    throw new Error('アイテムがまだ保存されていません。少し待ってから再試行してください。');
   }
 
   var transferSheet = getOrCreateSheet(ss, 'transfers');
@@ -364,4 +371,21 @@ function handleItemTransfer(body) {
       lastTransferDate: transferDate
     }
   };
+}
+
+// itemName が空の不正な履歴を一括削除
+function handleDeleteInvalidTransfers(body) {
+  var ss = getSpreadsheet();
+  var sheet = getOrCreateSheet(ss, 'transfers');
+  if (sheet.getLastRow() <= 1) return { deleted: 0 };
+  var data = sheet.getDataRange().getValues();
+  var deleted = 0;
+  // 下から削除することで行番号ずれを防ぐ
+  for (var i = data.length - 1; i >= 1; i--) {
+    if (data[i][1] === body.orgId && !data[i][3]) {
+      sheet.deleteRow(i + 1);
+      deleted++;
+    }
+  }
+  return { deleted: deleted };
 }

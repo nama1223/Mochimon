@@ -161,7 +161,7 @@ export default function MainPage({ org, onLogout }: Props) {
         )}
 
         {!data.loading && viewMode === 'history' && (
-          <TransferHistoryView transfers={data.transfers} categories={data.categories} onSelectMember={handleSelectMember} />
+          <TransferHistoryView transfers={data.transfers} categories={data.categories} onSelectMember={handleSelectMember} onDeleteInvalid={data.deleteInvalidTransfers} />
         )}
 
         {!data.loading && viewMode === 'search' && (

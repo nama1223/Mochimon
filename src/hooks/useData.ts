@@ -228,36 +228,62 @@ export function useData(orgId: string) {
   }
 
   async function transferItemTo(itemId: string, toMemberId: string, toMemberName: string) {
-    // 同一アイテムの二重操作を防ぐ
     if (pendingItems.has(itemId)) return;
-    setPendingItems(s => new Set(s).add(itemId));
 
+    // tempIDのままならGAS未保存なので即時拒否
+    if (itemId.startsWith('tmp_')) {
+      showBgError('まだ保存中です。少し待ってから再試行してください。');
+      return;
+    }
+
+    setPendingItems(s => new Set(s).add(itemId));
     const prevItem = items.find(i => i.id === itemId);
     const today = new Date().toISOString().split('T')[0];
 
-    // 楽観的更新: アイテム所有者を即時変更
+    // 楽観的更新
     setItems(is => is.map(i =>
       i.id === itemId ? { ...i, ownerId: toMemberId, ownerName: toMemberName, lastTransferDate: today } : i
     ));
 
-    try {
-      const { transfer } = await api.transferItem(orgId, itemId, toMemberId, toMemberName);
-      // GASから返ってきた移転履歴を追加
-      setTransfers(prev => [transfer, ...prev]);
-    } catch (e) {
-      // 失敗時: 元の状態に戻す
-      if (prevItem) {
-        setItems(is => is.map(i => i.id === itemId ? prevItem : i));
+    // 最大3回リトライ（即時 → 2秒後 → 4秒後）
+    const delays = [0, 2000, 4000];
+    let lastError: Error | null = null;
+
+    for (const delay of delays) {
+      if (delay > 0) await new Promise(r => setTimeout(r, delay));
+      try {
+        const { transfer } = await api.transferItem(orgId, itemId, toMemberId, toMemberName);
+        setTransfers(prev => [transfer, ...prev]);
+        setPendingItems(s => { const next = new Set(s); next.delete(itemId); return next; });
+        return;
+      } catch (e) {
+        lastError = e instanceof Error ? e : new Error('移転失敗');
       }
-      showBgError(e instanceof Error ? e.message : '移転に失敗しました');
-    } finally {
-      setPendingItems(s => { const next = new Set(s); next.delete(itemId); return next; });
+    }
+
+    // 全リトライ失敗 → ロールバック
+    if (prevItem) {
+      setItems(is => is.map(i => i.id === itemId ? prevItem : i));
+    }
+    showBgError(lastError?.message ?? '移転に失敗しました');
+    setPendingItems(s => { const next = new Set(s); next.delete(itemId); return next; });
+  }
+
+  async function deleteInvalidTransfers() {
+    const invalids = transfers.filter(t => !t.itemName);
+    if (invalids.length === 0) return;
+    setTransfers(prev => prev.filter(t => t.itemName));
+    try {
+      await api.deleteInvalidTransfers(orgId);
+    } catch (e) {
+      showBgError(e instanceof Error ? e.message : '削除失敗');
     }
   }
 
   return {
     members, categories, items, transfers,
     loading, bgError, pendingItems, load,
+    deleteInvalidTransfers,
     addMember, updateMember, removeMember, moveMember,
     addCategory, updateCategory, removeCategory, moveCategory,
     addItem, updateItem, removeItem, moveItem, transferItemTo,

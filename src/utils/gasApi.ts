@@ -91,3 +91,7 @@ export async function transferItem(
 ): Promise<{ transfer: TransferRecord; updatedItem: Partial<Item> }> {
   return post('items/transfer', { orgId, itemId, toMemberId, toMemberName });
 }
+
+export async function deleteInvalidTransfers(orgId: string): Promise<{ deleted: number }> {
+  return post('transfers/deleteInvalid', { orgId });
+}

@@ -6,11 +6,14 @@ interface Props {
   transfers: TransferRecord[];
   categories: Category[];
   onSelectMember: (id: string) => void;
+  onDeleteInvalid: () => void;
 }
 
-export default function TransferHistoryView({ transfers, categories, onSelectMember }: Props) {
+export default function TransferHistoryView({ transfers, categories, onSelectMember, onDeleteInvalid }: Props) {
   const [filterName, setFilterName] = useState('');
   const [filterCat, setFilterCat] = useState('');
+
+  const invalidCount = transfers.filter(t => !t.itemName).length;
 
   const filtered = useMemo(() => {
     let list = [...transfers];
@@ -42,6 +45,20 @@ export default function TransferHistoryView({ transfers, categories, onSelectMem
         </select>
       </div>
 
+      {/* 不正履歴が残っている場合に削除ボタンを表示 */}
+      {invalidCount > 0 && (
+        <button
+          className="history-clean-btn"
+          onClick={() => {
+            if (confirm(`移転ミスによる不正な履歴が ${invalidCount} 件あります。削除しますか？`)) {
+              onDeleteInvalid();
+            }
+          }}
+        >
+          ⚠ 不正な履歴を削除（{invalidCount} 件）
+        </button>
+      )}
+
       <p className="history-count">{filtered.length} 件</p>
 
       {filtered.length === 0 ? (
@@ -49,8 +66,11 @@ export default function TransferHistoryView({ transfers, categories, onSelectMem
       ) : (
         <ul className="history-list">
           {filtered.map(t => (
-            <li key={t.id} className="history-item">
-              <div className="history-item-name">{t.itemName}</div>
+            <li key={t.id} className={`history-item${!t.itemName ? ' invalid' : ''}`}>
+              {t.itemName
+                ? <div className="history-item-name">{t.itemName}</div>
+                : <div className="history-item-name invalid-label">（移転ミス・アイテム未登録）</div>
+              }
               <div className="history-item-route">
                 {t.fromMemberId ? (
                   <button className="history-member-btn" onClick={() => onSelectMember(t.fromMemberId!)}>
