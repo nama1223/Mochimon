@@ -17,6 +17,11 @@ A belongings list management app that records "who gave what and when." It's for
 A shared space accessed with a group password records the handover of instruments, equipment, etc. Later, you can trace back "who did I give that to?"
 Individuals can freely add or delete items, but the handover record is saved with a date and time and cannot be deleted.
 
+## License & Redistribution
+
+For the policy on modification and redistribution, see "Modification & Redistribution" in the About section of the Nama Studio top page (that page is the latest version of the policy).
+https://nama1223.com/
+
 ## Author
 
 Nama Studio
