@@ -6,6 +6,7 @@ import AllItemsView from './AllItemsView';
 import TransferHistoryView from './TransferHistoryView';
 import RegisterModal from './RegisterModal';
 import TransferModal from './TransferModal';
+import ConfirmModal from './ConfirmModal';
 import './MainPage.css';
 
 interface Props {
@@ -24,6 +25,7 @@ export default function MainPage({ org, onLogout }: Props) {
   const [showRegister, setShowRegister] = useState(false);
   const [transferItem, setTransferItem] = useState<Item | null>(null);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
+  const [pendingDeleteItemId, setPendingDeleteItemId] = useState<string | null>(null);
   const [addingItem, setAddingItem] = useState(false);
   const [newItemName, setNewItemName] = useState('');
   const [newItemCat, setNewItemCat] = useState('');
@@ -211,7 +213,7 @@ export default function MainPage({ org, onLogout }: Props) {
                   items={memberItems}
                   onTransfer={item => setTransferItem(item)}
                   onEdit={item => setEditingItem(item)}
-                  onDelete={id => { if (confirm('削除しますか？')) data.removeItem(id); }}
+                  onDelete={id => setPendingDeleteItemId(id)}
                   onMove={(id, dir) => data.moveItem(id, selectedMemberId!, dir)}
                   busy={busy}
                   pendingItems={data.pendingItems}
@@ -285,6 +287,19 @@ export default function MainPage({ org, onLogout }: Props) {
           onRemoveCategory={data.removeCategory}
           onMoveCategory={data.moveCategory}
           onClose={() => setShowRegister(false)}
+        />
+      )}
+
+      {pendingDeleteItemId && (
+        <ConfirmModal
+          message="削除しますか？"
+          busy={busy}
+          onCancel={() => setPendingDeleteItemId(null)}
+          onConfirm={() => {
+            const id = pendingDeleteItemId;
+            setPendingDeleteItemId(null);
+            data.removeItem(id);
+          }}
         />
       )}
 

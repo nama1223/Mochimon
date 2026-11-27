@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { Member, Category } from '../types';
+import ConfirmModal from './ConfirmModal';
 import './RegisterModal.css';
 
 interface Props {
@@ -30,6 +31,7 @@ export default function RegisterModal({
   const [editingMember, setEditingMember] = useState<{ id: string; name: string } | null>(null);
   const [editingCategory, setEditingCategory] = useState<{ id: string; name: string } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState<{ message: string; remove: () => Promise<void> } | null>(null);
 
   const sortedMembers = [...members].sort((a, b) => a.order - b.order);
   const sortedCats = [...categories].sort((a, b) => a.order - b.order);
@@ -119,7 +121,7 @@ export default function RegisterModal({
                         <button className="reg-arrow" disabled={busy || i === 0} onClick={() => wrap(() => onMoveMember(m.id, 'up'))}>↑</button>
                         <button className="reg-arrow" disabled={busy || i === sortedMembers.length - 1} onClick={() => wrap(() => onMoveMember(m.id, 'down'))}>↓</button>
                         <button className="reg-edit-btn" onClick={() => setEditingMember({ id: m.id, name: m.name })}>編集</button>
-                        <button className="reg-del-btn" disabled={busy} onClick={() => { if (confirm(`「${m.name}」を削除しますか？`)) wrap(() => onRemoveMember(m.id)); }}>削除</button>
+                        <button className="reg-del-btn" disabled={busy} onClick={() => setConfirmDelete({ message: `「${m.name}」を削除しますか？`, remove: () => onRemoveMember(m.id) })}>削除</button>
                       </div>
                     </>
                   )}
@@ -164,7 +166,7 @@ export default function RegisterModal({
                         <button className="reg-arrow" disabled={busy || i === 0} onClick={() => wrap(() => onMoveCategory(c.id, 'up'))}>↑</button>
                         <button className="reg-arrow" disabled={busy || i === sortedCats.length - 1} onClick={() => wrap(() => onMoveCategory(c.id, 'down'))}>↓</button>
                         <button className="reg-edit-btn" onClick={() => setEditingCategory({ id: c.id, name: c.name })}>編集</button>
-                        <button className="reg-del-btn" disabled={busy} onClick={() => { if (confirm(`「${c.name}」を削除しますか？`)) wrap(() => onRemoveCategory(c.id)); }}>削除</button>
+                        <button className="reg-del-btn" disabled={busy} onClick={() => setConfirmDelete({ message: `「${c.name}」を削除しますか？`, remove: () => onRemoveCategory(c.id) })}>削除</button>
                       </div>
                     </>
                   )}
@@ -174,6 +176,18 @@ export default function RegisterModal({
           </div>
         )}
       </div>
+      {confirmDelete && (
+        <ConfirmModal
+          message={confirmDelete.message}
+          busy={busy}
+          onCancel={() => setConfirmDelete(null)}
+          onConfirm={() => {
+            const pending = confirmDelete;
+            setConfirmDelete(null);
+            void wrap(pending.remove);
+          }}
+        />
+      )}
     </div>
   );
 }

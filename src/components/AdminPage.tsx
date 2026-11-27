@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { adminVerify, adminGetOrgs, adminCreateOrg, adminDeleteOrg } from '../utils/gasApi';
 import type { OrgInfo } from '../types';
+import ConfirmModal from './ConfirmModal';
 import './AdminPage.css';
 
 interface Props {
@@ -19,6 +20,8 @@ export default function AdminPage({ onBack }: Props) {
   const [newName, setNewName] = useState('');
   const [newPw, setNewPw] = useState('');
   const [creating, setCreating] = useState(false);
+  const [pendingDelete, setPendingDelete] = useState<{ orgId: string; name: string } | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   async function handleVerify(e: React.FormEvent) {
     e.preventDefault();
@@ -60,13 +63,15 @@ export default function AdminPage({ onBack }: Props) {
     }
   }
 
-  async function handleDelete(orgId: string, name: string) {
-    if (!confirm(`「${name}」を削除しますか？\nデータは全て消えます。`)) return;
+  async function handleDelete(orgId: string) {
+    setDeleting(true);
     try {
       await adminDeleteOrg(token, orgId);
       setOrgs(prev => prev.filter(o => o.id !== orgId));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'エラー');
+    } finally {
+      setDeleting(false);
     }
   }
 
@@ -144,7 +149,7 @@ export default function AdminPage({ onBack }: Props) {
                 </div>
                 <button
                   className="admin-delete-btn"
-                  onClick={() => handleDelete(org.id, org.name)}
+                  onClick={() => setPendingDelete({ orgId: org.id, name: org.name })}
                 >
                   削除
                 </button>
@@ -153,6 +158,18 @@ export default function AdminPage({ onBack }: Props) {
           </ul>
         )}
       </div>
+      {pendingDelete && (
+        <ConfirmModal
+          message={`「${pendingDelete.name}」を削除しますか？\nデータは全て消えます。`}
+          busy={deleting}
+          onCancel={() => setPendingDelete(null)}
+          onConfirm={() => {
+            const { orgId } = pendingDelete;
+            setPendingDelete(null);
+            void handleDelete(orgId);
+          }}
+        />
+      )}
     </div>
   );
 }

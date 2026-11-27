@@ -1,5 +1,6 @@
 import { useState, useMemo } from 'react';
 import type { TransferRecord, Category } from '../types';
+import ConfirmModal from './ConfirmModal';
 import './TransferHistoryView.css';
 
 interface Props {
@@ -12,6 +13,7 @@ interface Props {
 export default function TransferHistoryView({ transfers, categories, onSelectMember, onDeleteInvalid }: Props) {
   const [filterName, setFilterName] = useState('');
   const [filterCat, setFilterCat] = useState('');
+  const [confirmDeleteInvalid, setConfirmDeleteInvalid] = useState(false);
 
   const invalidCount = transfers.filter(t => !t.itemName).length;
 
@@ -49,11 +51,7 @@ export default function TransferHistoryView({ transfers, categories, onSelectMem
       {invalidCount > 0 && (
         <button
           className="history-clean-btn"
-          onClick={() => {
-            if (confirm(`移転ミスによる不正な履歴が ${invalidCount} 件あります。削除しますか？`)) {
-              onDeleteInvalid();
-            }
-          }}
+          onClick={() => setConfirmDeleteInvalid(true)}
         >
           ⚠ 不正な履歴を削除（{invalidCount} 件）
         </button>
@@ -88,6 +86,16 @@ export default function TransferHistoryView({ transfers, categories, onSelectMem
             </li>
           ))}
         </ul>
+      )}
+      {confirmDeleteInvalid && (
+        <ConfirmModal
+          message={`移転ミスによる不正な履歴が ${invalidCount} 件あります。削除しますか？`}
+          onCancel={() => setConfirmDeleteInvalid(false)}
+          onConfirm={() => {
+            setConfirmDeleteInvalid(false);
+            onDeleteInvalid();
+          }}
+        />
       )}
     </div>
   );
